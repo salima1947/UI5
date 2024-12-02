@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+    <title>Weather.com</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #353535;
+            font-family: 'Arial', sans-serif;
+            direction: rtl; /* Right-to-left layout */
+        }
+        .hide {
+            display: none;
+        }
+        /* CSS */
+ button {
+  appearance: none;
+  background-color: #FFFFFF;
+  border-radius: 40em;
+  border-style: none;
+  box-shadow: #ADCFFF 0 -12px 6px inset;
+  box-sizing: border-box;
+  color: #000000;
+  cursor: pointer;
+  display: inline-block;
+  font-family: -apple-system,sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -.24px;
+  margin: 0;
+  outline: none;
+  padding: 1rem 1.3rem;
+  quotes: auto;
+  text-align: center;
+  text-decoration: none;
+  transition: all .15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+button:hover {
+  background-color: #afccff;
+  box-shadow: #025ced 0 -6px 8px inset;
+  transform: scale(1.125);
+}
+
+button:active {
+  transform: scale(1.025);
+}
+
+@media (min-width: 768px) {
+  button {
+    font-size: 0.9rem;
+    padding: .40rem 1rem;
+      margin-right: 1rem;
+  }
+}
+        #timer {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 5px;
+            width: calc(40% - 22px);
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* تضمين الحواف في حساب العرض */
+        }
+        .question {
+            font-size: 18px;
+            color: #fe0e1e;
+            font-weight: bold;
+            margin-top: 7px;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .top-nav {
+            background-color: #f8f9fc;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+            border-bottom: 1px solid #e6e6e6;
+            box-shadow: 0 4px 8px 0 rgb(0, 0, 0), 0 8px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+            }
+        }
+        .left-nav {
+            background-color: #025ced;
+            color: white;
+            width: 200px;
+            padding: 10px;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .scrollable-top {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #ffffff;
+            padding: 10px;
+        }
+        .scrollable-content {
+            padding: 15px;
+            background-color: #ddd;
+            margin-bottom: 10px;
+        }
+        .fixed-bottom {
+            background-color: #c9c9c9;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgb(0, 0, 0), 0 8px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        @media (max-width: 768px) {
+            .left-nav {
+                display: none;
+            }
+            .main-content {
+                flex-direction: column;
+            }
+        }
+        .question{
+            font-size: 18px;
+            color: #fe0e1e;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            margin-top: 7px;
+        }
+        .a, .b {
+            display: inline-block;
+            vertical-align: top;
+            width: 100%; /* احتلال العرض الكامل المتاح */
+            box-sizing: border-box; /* تضمين الحواف في حساب العرض */
+            padding: 10px; /* إضافة حواف لتحسين المساحة */
+        }
+        @media (min-width: 768px) {
+            .a, .b {
+                width: 45%; /* استخدام تخطيط عمودين على الشاشات الأكبر */
+            }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: 1px solid #ccc; /* إضافة حدود للجدول */
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1); /* ظل خفيف */
+        }
+        th, td {
+            text-align: left;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-bottom: 1px solid #ccc; /* حدود سفلية أكثر سمكًا */
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #025ced;
+            border-bottom: 2px solid #9f9f9f;
+            border-top: 2px solid #9f9f9f;
+        }
+        caption {
+            caption-side: top; /* العنوان فوق الجدول */
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #f2f2f2; /* خلفية باللون الرمادي الفاتح */
+            text-align: left; /* محاذاة العنوان لليسار */
+        }
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.9em; /* تقليل حجم الخط على الشاشات الأصغر */
+            }
+            table, th, td {
+                display: block; /* تكديس عناصر الجدول عموديًا */
+            }
+            td {
+                text-align: left; /* محاذاة بيانات الخلايا لليسار */
+            }
+        }
+        .top-nav ul {
+            list-style: none; /* إزالة النقاط الافتراضية */
+            margin: 0;
+            padding: 0;
+            display: flex; /* ترتيب العناصر أفقيًا */
+        }
+        .top-nav li {
+            margin-left: 20px; /* إضافة مسافة بين العناصر */
+        }
+        .top-nav a {
+            text-decoration: none; /* إزالة الخطوط السفلية من الروابط */
+            color: #333; /* تعيين لون الرابط */
+        }
+        .top-nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .top-nav a.active {
+            background-color: #04AA6D;
+            color: #025ced;
+        }
+        @media (max-width: 768px) {
+            .top-nav ul {
+                flex-direction: column; /* تكديس العناصر عموديًا على الشاشات الأصغر */
+            }
+            .top-nav li {
+                margin-left: 0; /* إزالة المسافة الأفقية على الشاشات الأصغر */
+                margin-bottom: 10px; /* إضافة مسافة عمودية */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="top-nav">
+            <div style="font-size: larger; color: #025ced; font-weight: bold; margin-left: 4px">Weather.com</div>
+            <div>
+                <ul class="navbar-nav">
+                    <li class="nav-item active"><a class="nav-link" href="#!">الرئيسية</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">الطقس</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">التوقعات</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">الخريطة</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">حول</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">تسجيل الدخول</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#!">التسجيل</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="scrollable-top">
+                <div class="a" style="filter: brightness(120%); width: 50%">
+                    <h1 style="font-size: 50px; font-family: Georgia">المناخ والطقس في الجزائر ومرسيليا</h1>
+                    <p style="text-align: right; font-size: 16px; font-family: Georgia">تتمتع الجزائر ومرسيليا، اللتان تقعان على الساحل المتوسطي، بخصائص مناخية مميزة تتأثر بإعداداتهما الجغرافية. إليك مقارنة بين طقسهم ومناخهم:</p>
+                    <div class="city">
+                        <h2>الجزائر، الجزائر</h2>
+                        <ul style="text-align: right; font-size: 16px; font-family: Georgia">
+                            <li><strong>درجة الحرارة:</strong> تتمتع الجزائر بمناخ متوسطي مع صيف حار وجاف وشتاء معتدل ورطب. متوسط درجة الحرارة السنوية حوالي 18.2°C. يمكن أن تصل درجات الحرارة العليا في الصيف إلى 30°C في أغسطس، بينما يمكن أن تنخفض في الشتاء إلى حوالي 6°C في يناير وفبراير.</li>
+                            <li><strong>هطول الأمطار:</strong> تتلقى الجزائر حوالي 537.7 مم من الأمطار سنويًا، حيث يحدث معظم هطول الأمطار في أشهر الشتاء. ديسمبر هو عادة أكثر الأشهر رطوبة، بينما يوليو هو الأكثر جفافًا.</li>
+                            <li><strong>الرطوبة:</strong> متوسط الرطوبة حوالي 75%، مع أعلى المستويات في الشتاء وأدنى المستويات خلال أشهر الصيف.</li>
+                        </ul>
+                        <h2>مرسيليا، فرنسا</h2>
+                        <ul style="text-align: right; font-size: 16px; font-family: Georgia">
+                            <li><strong>درجة الحرارة:</strong> تتمتع مرسيليا أيضًا بمناخ متوسطي، يتميز بصيف حار وجاف وشتاء معتدل وممطر. متوسط درجة الحرارة السنوية أقل بقليل من الجزائر حيث يبلغ حوالي 15.8°C. عادة ما تتراوح درجات حرارة الصيف بين 25°C و28°C، بينما يمكن أن تنخفض درجات الحرارة في الشتاء إلى حوالي 4°C في يناير.</li>
+                            <li><strong>هطول الأمطار:</strong> تتلقى مرسيليا هطول أمطار أقل من الجزائر، بمتوسط حوالي 403.5 مم سنويًا. نوفمبر هو غالبًا أكثر الأشهر رطوبة، بينما الصيف يشهد القليل جدًا من الأمطار، مما يجعله مثاليًا للأنشطة الخارجية.</li>
+                            <li><strong>الرطوبة:</strong> الرطوبة في مرسيليا عمومًا أقل من الجزائر، مما يساهم في سمعتها كواحدة من أكثر المدن المشمسة في فرنسا. متوسط الرطوبة يتراوح حوالي 66%.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="b" style="padding-left:5%; filter: brightness(120%); padding-top: 7%">
+                    <table>
+                        <caption style="text-align: center; font-family: Arial, sans-serif; margin-left: 5%">متوسط درجة الحرارة القصوى في الجزائر ومرسيليا</caption>
+                        <thead>
+                            <tr>
+                                <th>المدينة</th>
+                                <th>يناير</th>
+                                <th>فبراير</th>
+                                <th>مارس</th>
+                                <th>أبريل</th>
+                                <th>مايو</th>
+                                <th>يونيو</th>
+                                <th>يوليو</th>
+                                <th>أغسطس</th>
+                                <th>سبتمبر</th>
+                                <th>أكتوبر</th>
+                                <th>نوفمبر</th>
+                                <th>ديسمبر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>الجزائر</b></td>
+                                <td>15°C</td>
+                                <td>16°C</td>
+                                <td>18°C</td>
+                                <td>20°C</td>
+                                <td>22°C</td>
+                                <td>26°C</td>
+                                <td>29°C</td>
+                                <td>30°C</td>
+                                <td>28°C</td>
+                                <td>24°C</td>
+                                <td>20°C</td>
+                                <td>16°C</td>
+                            </tr>
+                            <tr>
+                                <td><b>مرسيليا</b></td>
+                                <td>12°C</td>
+                                <td>12°C</td>
+                                <td>15°C</td>
+                                <td>18°C</td>
+                                <td>22°C</td>
+                                <td>26°C</td>
+                                <td>28°C</td>
+                                <td>28°C</td>
+                                <td>25°C</td>
+                                <td>20°C</td>
+                                <td>15°C</td>
+                                <td>12°C</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <caption style="text-align: center; font-family: Arial, sans-serif; margin-left: 5%">متوسط درجة الحرارة الدنيا في الجزائر ومرسيليا</caption>
+                        <thead>
+                            <tr>
+                                <th>المدينة</th>
+                                <th>يناير</th>
+                                <th>فبراير</th>
+                                <th>مارس</th>
+                                <th>أبريل</th>
+                                <th>مايو</th>
+                                <th>يونيو</th>
+                                <th>يوليو</th>
+                                <th>أغسطس</th>
+                                <th>سبتمبر</th>
+                                <th>أكتوبر</th>
+                                <th>نوفمبر</th>
+                                <th>ديسمبر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>الجزائر</b></td>
+                                <td>6°C</td>
+                                <td>6°C</td>
+                                <td>7°C</td>
+                                <td>9°C</td>
+                                <td>12°C</td>
+                                <td>16°C</td>
+                                <td>19°C</td>
+                                <td>20°C</td>
+                                <td>18°C</td>
+                                <td>14°C</td>
+                                <td>10°C</td>
+                                <td>7°C</td>
+                            </tr>
+                            <tr>
+                                <td><b>مرسيليا</b></td>
+                                <td>4°C</td>
+                                <td>4°C</td>
+                                <td>7°C</td>
+                                <td>10°C</td>
+                                <td>13°C</td>
+                                <td>17°C</td>
+                                <td>19°C</td>
+                                <td>19°C</td>
+                                <td>16°C</td>
+                                <td>13°C</td>
+                                <td>8°C</td>
+                                <td>5°C</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <caption style="text-align: center; font-family: Arial, sans-serif; margin-left: 5%">متوسط هطول الأمطار الشهري في الجزائر ومرسيليا في 2023 (مم)</caption>
+                        <thead>
+                            <tr>
+                                <th>المدينة</th>
+                                <th>يناير</th>
+                                <th>فبراير</th>
+                                <th>مارس</th>
+                                <th>أبريل</th>
+                                <th>مايو</th>
+                                <th>يونيو</th>
+                                <th>يوليو</th>
+                                <th>أغسطس</th>
+                                <th>سبتمبر</th>
+                                <th>أكتوبر</th>
+                                <th>نوفمبر</th>
+                                <th>ديسمبر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>الجزائر</b></td>
+                                <td>58.6</td>
+                                <td>55.7</td>
+                                <td>42.2</td>
+                                <td>38.9</td>
+                                <td>29.5</td>
+                                <td>8.5</td>
+                                <td>2.4</td>
+                                <td>6.3</td>
+                                <td>23.1</td>
+                                <td>40.7</td>
+                                <td>64.1</td>
+                                <td>66.2</td>
+                            </tr>
+                            <tr>
+                                <td><b>مرسيليا</b></td>
+                                <td>40.5</td>
+                                <td>33.8</td>
+                                <td>29.6</td>
+                                <td>37.7</td>
+                                <td>34.7</td>
+                                <td>19.6</td>
+                                <td>9.1</td>
+                                <td>19.5</td>
+                                <td>45.3</td>
+                                <td>61.7</td>
+                                <td>57.7</td>
+                                <td>40.3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="fixed-bottom">
+            <div id="start-screen"></div>
+            <div id="quiz" class="hide">
+                <div id="question-words" class="question"></div>
+                <input type="text" id="answer-input" placeholder="أدخل إجابتك هنا">
+                <button id="submit-answer">السؤال التالي</button>
+            </div>
+            <div id="quiz-end" class="hide">
+                <div id="score-final"></div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+function getQueryParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+const userName = getQueryParameter('name');
+const userAge = getQueryParameter('age');
+
+let questions = [
+    { prompt: "ما هي الأشهر الثلاثة الأكثر حرارة في الجزائر؟" },
+    { prompt: "كيف تقارن مستوى الرطوبة في مرسيليا مع الجزائر؟" },
+    { prompt: "أي مدينة لديها متوسط درجة حرارة سنوي أعلى؟" },
+    { prompt: "ما هي الخصائص العامة للصيف في كلا المدينتين؟" }
+];
+
+let questionsEl = document.querySelector("#quiz");
+let timerEl = document.querySelector("#timer");
+let answerInput = document.querySelector("#answer-input");
+let nextBtn = document.querySelector("#submit-answer");
+let endScreenEl = document.getElementById("quiz-end");
+let finalScoreEl = document.getElementById("score-final");
+let currentQuestionIndex = 0;
+let startTime; // Variable to store the start time in milliseconds
+let timerId;
+let answers = [];
+
+// Automatically start the quiz and timer when the page loads
+window.onload = function() {
+    quizStart();
+}
+
+function quizStart() {
+    currentQuestionIndex = 0;
+    answers = [];
+    startTime = Date.now(); // Record the start time
+    timerId = setInterval(clockTick, 100); // Update every 100 milliseconds
+    questionsEl.classList.remove("hide");
+    getQuestion();
+}
+
+function getQuestion() {
+    let currentQuestion = questions[currentQuestionIndex];
+    document.getElementById("question-words").textContent = currentQuestion.prompt;
+    answerInput.value = ''; // Clear the input field for each question
+}
+
+function nextQuestion() {
+    if (answerInput.value.trim() === "") {
+        alert("يرجى الإجابة على السؤال قبل المتابعة.");
+        return; // Prevent moving to the next question
+    }
+    answers.push(answerInput.value);
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        getQuestion();
+    } else {
+        quizEnd();
+    }
+}
+
+function clockTick() {
+    const elapsedTime = Date.now() - startTime; // Calculate elapsed time in milliseconds
+    timerEl.textContent = `Time: ${elapsedTime} ms`;
+}
+
+function quizEnd() {
+    clearInterval(timerId);
+    const totalTimeSpent = Date.now() - startTime; // Total time spent in milliseconds
+    finalScoreEl.textContent = `Total time spent: ${totalTimeSpent} ms`;
+    questionsEl.classList.add("hide");
+    endScreenEl.classList.remove("hide");
+
+    // Store results in localStorage
+    localStorage.setItem('quizResultsAgr', JSON.stringify({
+        name: userName,
+        age: userAge,
+        answers: answers,
+        timeSpent: totalTimeSpent // Store time spent in milliseconds
+    }));
+
+    // Redirect to finish.html
+    window.location.href = 'Next1ar.html';
+}
+
+nextBtn.onclick = nextQuestion;
+           //segmented conytrol
+
+   function selectSegment(index) {
+  var segments = document.getElementsByClassName("segment");
+  for (var i = 0; i < segments.length; i++) {
+    segments[i].classList.remove("selected");
+  }
+  segments[index].classList.add("selected");
+}
+
+
+  </script>
+
+</html>

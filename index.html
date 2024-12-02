@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather.com</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            background: linear-gradient(to right, #4a90e2, #d6e5ff);
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box; /* Ensure padding is included in width */
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 500px) {
+            .container {
+                max-width: 90%;
+            }
+        }
+        .arabic {
+            direction: rtl; /* Right-to-left text direction */
+            text-align: right; /* Right-align text within the container */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Select Your Language / إختر لغتك</h1>
+        <select id="languageSelect" required>
+            <option value="">-- Please choose a language --</option>
+            <option value="en">English</option>
+            <option value="ar">Arabic</option>
+        </select>
+        <div id="languageError" class="error"></div>
+
+        <div id="content">
+            <h2>Welcome to the Experiment</h2>
+            <h3>Ready to Shape the Future of UI? We need your help! In this exciting experiment.</h3>
+            <label for="name">Name:</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+            <div id="nameError" class="error"></div>
+            <label for="age">Age:</label>
+            <input type="number" id="age" placeholder="Enter your age" required min="0" max="100">
+            <div id="ageError" class="error"></div>
+            <h2>Instructions:</h2>
+            <ol>
+                <li>You'll evaluate 5 unique user interfaces, answering just 4 quick questions per interface. scroll down to find the questions in red at the bottom of the page.</li>
+                <li>You'll then rate your experience and complete a short workload assessment.</li>
+                <li>Your feedback is crucial – let's build better interfaces together!</li>
+            </ol>
+            <button id="startButton">Start Experiment</button>
+        </div>
+
+        <script>
+            const languageSelect = document.getElementById('languageSelect');
+            const contentDiv = document.getElementById('content');
+            const startButton = document.getElementById('startButton');
+            const languageError = document.getElementById('languageError');
+            const nameInput = document.getElementById('name');
+            const ageInput = document.getElementById('age');
+            const nameError = document.getElementById('nameError');
+            const ageError = document.getElementById('ageError');
+
+            const messages = {
+                en: {
+                    languageError: "Please select a language.",
+                    nameError: "Please enter your name. It is required.",
+                    ageError: "Please enter a valid age. It is required.",
+                    welcome: "Welcome to the Experiment",
+                    ready: "Ready to Shape the Future of UI? We need your help! In this exciting experiment.",
+                    instructions: "Instructions:",
+                    nameLabel: "Name:",
+                    ageLabel: "Age:",
+                    startButton: "Start Experiment",
+                    namePlaceholder: "Enter your name",
+                    agePlaceholder: "Enter your age"
+                },
+                ar: {
+                    languageError: "يرجى اختيار لغة.",
+                    nameError: "يرجى إدخال اسمك. هذا مطلوب.",
+                    ageError: "يرجى إدخال عمر. هذا مطلوب.",
+                    welcome: "مرحباً بك في التجربة",
+                    ready: "هل أنت مستعد لتشكيل مستقبل واجهات المستخدم؟ نحن بحاجة إلى مساعدتك! في هذه التجربة المثيرة.",
+                    instructions: "التعليمات:",
+                    nameLabel: "الاسم:",
+                    ageLabel: "العمر:",
+                    startButton: "ابدأ التجربة",
+                    namePlaceholder: "أدخل اسمك",
+                    agePlaceholder: "أدخل عمرك"
+                }
+            };
+
+            languageSelect.addEventListener('change', () => {
+                clearErrors();
+                updateContent(languageSelect.value);
+            });
+
+            function clearErrors() {
+                languageError.textContent = '';
+                nameError.textContent = '';
+                ageError.textContent = '';
+            }
+
+            function updateContent(language = 'en') {
+                const langMessages = messages[language] || messages.en;
+
+                // Update text content based on selected language
+                document.querySelector('h2').textContent = langMessages.welcome;
+                document.querySelector('h3').textContent = langMessages.ready;
+                document.querySelector('h2:nth-of-type(2)').textContent = langMessages.instructions;
+                document.querySelector('label[for="name"]').textContent = langMessages.nameLabel;
+                document.querySelector('label[for="age"]').textContent = langMessages.ageLabel;
+                startButton.textContent = langMessages.startButton;
+                nameInput.placeholder = langMessages.namePlaceholder;
+                ageInput.placeholder = langMessages.agePlaceholder;
+
+                // Update instructions list
+                document.querySelectorAll('ol li')[0].textContent = language === 'ar'
+                    ? "ستقوم بتقييم 5 واجهات مستخدم فريدة، وإجابة 4 أسئلة سريعة فقط لكل واجهة. قم بالتمرير لأسفل للعثور على الأسئلة باللون الأحمر في أسفل الصفحة."
+                    : "You'll evaluate 5 unique user interfaces, answering just 4 quick questions per interface. scroll down to find the questions in red at the bottom of the page.";
+                document.querySelectorAll('ol li')[1].textContent = language === 'ar'
+                    ? "سوف تقوم بعد ذلك بتقييم تجربتك وإكمال تقييم عبء العمل القصير."
+                    : "You'll then rate your experience and complete a short workload assessment.";
+                document.querySelectorAll('ol li')[2].textContent = language === 'ar'
+                    ? "ملاحظاتك مهمة – دعونا نبني واجهات أفضل معًا!"
+                    : "Your feedback is crucial – let's build better interfaces together!";
+
+                // Apply Arabic class for RTL support
+                if (language === 'ar') {
+                    contentDiv.classList.add('arabic');
+                } else {
+                    contentDiv.classList.remove('arabic');
+                }
+
+                // Remove old listener to prevent duplicates
+                startButton.removeEventListener('click', validateForm);
+                startButton.addEventListener('click', () => validateForm(language));
+            }
+
+            function validateForm(language) {
+                const langMessages = messages[language] || messages.en;
+                const selectedLanguage = languageSelect.value;
+                let valid = true;
+
+                clearErrors();
+
+                if (!selectedLanguage) {
+                    languageError.textContent = langMessages.languageError;
+                    valid = false;
+                }
+                if (!nameInput.value.trim()) {
+                    nameError.textContent = langMessages.nameError;
+                    valid = false;
+                }
+                if (!ageInput.value.trim()) {
+                    ageError.textContent = langMessages.ageError;
+                    valid = false;
+                }
+
+                if (valid) {
+                    const startTime = Date.now();
+                    localStorage.setItem('startTime', startTime);
+                    const redirectPage = language === 'ar' ? 'big5/Ag-ar.html' : 'big5/Agreeableness.html';
+                    window.location.href = `${redirectPage}?name=${encodeURIComponent(nameInput.value)}&age=${encodeURIComponent(ageInput.value)}`;
+                }
+            }
+
+            updateContent();
+        </script>
+    </div>
+</body>
+</html>

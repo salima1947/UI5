@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Download Results</title>
+</head>
+<body>
+    <h1>Download Your NASA-TLX Results</h1>
+    <button onclick="downloadResults()">Download Results</button>
+    <div id="resultsDisplay"></div>
+    <script>
+        function generateTextResults() {
+            const storedResults = localStorage.getItem('nasaResults');
+            if (!storedResults) {
+                return "Error: No results found. Please complete the questionnaire on page 1.";
+            }
+            const results = JSON.parse(storedResults);
+            let text = "NASA Task Load Index Results:\n\n";
+            text += "Scale\tRating\tTally\tWeight\n";
+            for (let i = 0; i < results.rating.length; i++) {
+                text += `${scale[i]}\t${results.rating[i] || "N/A"}\t${results.tally[i] || "N/A"}\t${results.weight[i] || "N/A"}\n`;
+            }
+            text += `\nOverall Score: ${results.overall}`;
+            return text;
+        }
+
+        function downloadResults() {
+            const text = generateTextResults();
+            if (text.startsWith("Error:")) {
+                document.getElementById("resultsDisplay").innerHTML = text;
+                return;
+            }
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', 'nasa_task_load_index_results.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+            document.getElementById("resultsDisplay").innerHTML = "Results downloaded successfully!";
+        }
+
+        //You need to define the scale array here as well.  Copy it from page1.html
+        var scale = [
+            "Mental Demand",
+            "Physical Demand",
+            "Temporal Demand",
+            "Performance",
+            "Effort",
+            "Frustration"
+        ];
+
+
+    </script>
+</body>
+</html>

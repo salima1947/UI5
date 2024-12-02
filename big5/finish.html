@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Results</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #4a90e2, #d6e5ff);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>Thank you for participating in our experiment  😊 </h1>
+        <button id="download">Download the Results</button>
+    </div>
+
+    <script>
+        document.getElementById('download').onclick = function() {
+            // Gather quiz results from localStorage
+            const quizResults = {
+                agr: JSON.parse(localStorage.getItem('quizResultsAgr')),
+                con: JSON.parse(localStorage.getItem('quizResultsCon')),
+                ext: JSON.parse(localStorage.getItem('quizResultsExt')),
+                op: JSON.parse(localStorage.getItem('quizResultsOp')),
+                ne: JSON.parse(localStorage.getItem('quizResultsNe'))
+            };
+
+            const ratings = {
+                agreeableness: localStorage.getItem('userRatingAg'),
+                conscientiousness: localStorage.getItem('userRatingCo'),
+                extraversion: localStorage.getItem('userRatingEx'),
+                openness: localStorage.getItem('userRatingOp'),
+                neuroticism: localStorage.getItem('userRatingNe')
+            };
+
+            const nasaResultsAg = JSON.parse(localStorage.getItem('nasaResultsAg'));
+            const nasaResultsCo = JSON.parse(localStorage.getItem('nasaResultsCo'));
+            const nasaResultsEx = JSON.parse(localStorage.getItem('nasaResultsEx'));
+            const nasaResultsOp = JSON.parse(localStorage.getItem('nasaResultsOp'));
+            const nasaResultsNe = JSON.parse(localStorage.getItem('nasaResultsNe'));
+
+            // Check for missing NASA-TLX results
+            if (!nasaResultsAg || !nasaResultsCo || !nasaResultsEx || !nasaResultsOp || !nasaResultsNe) {
+                alert('Error: Some NASA-TLX results are missing. Please complete the questionnaire.');
+                return;
+            }
+
+            // Extract name and age from quizResults
+            const name = quizResults.agr?.name || 'N/A';
+            const age = quizResults.agr?.age || 'N/A';
+
+            // Timer
+            const startTime = localStorage.getItem('startTime');
+            const endTime = Date.now();
+            const totalTime = endTime - startTime; // Total time in milliseconds
+
+            // Check for missing quiz data
+            const missingData = [];
+            for (const key in quizResults) {
+                if (!quizResults[key]) missingData.push(`quizResults${key.toUpperCase()}`);
+            }
+            for (const key in ratings) {
+                if (!ratings[key]) missingData.push(`userRating${key.charAt(0).toUpperCase() + key.slice(1)}`);
+            }
+
+            if (missingData.length > 0) {
+                alert(`Some results are missing: ${missingData.join(', ')}`);
+                return;
+            }
+
+            // Create result text using semicolons
+            let resultText = `Name: ${name};Age: ${age};Total Time Spent: ${totalTime} milliseconds;`;
+            resultText += `Agreeableness: ${ratings.agreeableness};`;
+            resultText += `Conscientiousness: ${ratings.conscientiousness};`;
+            resultText += `Extraversion: ${ratings.extraversion};`;
+            resultText += `Openness: ${ratings.openness};`;
+            resultText += `Neuroticism: ${ratings.neuroticism};`;
+
+
+            // Add quiz answers
+            for (const [trait, data] of Object.entries(quizResults)) {
+                if (data) {
+                    resultText += `${trait.toUpperCase()} Answers: ${data.answers.join(", ")};`;
+                    resultText += `Total time spent: ${data.timeSpent} miliseconds;`;
+                }
+            }
+
+            // Add NASA-TLX results
+            const scales = ["Ag", "Co", "Ex", "Op", "Ne"];
+            scales.forEach(scale => {
+                const results = JSON.parse(localStorage.getItem(`nasaResults${scale}`));
+                resultText += `NASA-TLX ${scale} Results:;`;
+                resultText += "Scale;Rating;Tally;Weight;";
+                results.rating.forEach((rating, i) => {
+                    resultText += `${scale[i]};${rating || "N/A"};${results.tally[i] || "N/A"};${results.weight[i]?.toFixed(2) || "N/A"};`;
+                });
+                resultText += `Overall Score: ${results.overall || "N/A"};`;
+            });
+
+            // Create a blob and trigger download
+            const blob = new Blob([resultText], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "results.txt";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Clear localStorage (optional)
+            localStorage.clear();
+        };
+    </script>
+</body>
+</html>

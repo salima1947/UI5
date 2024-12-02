@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather.com</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #4a90e2, #d6e5ff);
+        }
+        .rating-box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .star {
+            font-size: 40px;
+            cursor: pointer;
+            color: #ddd;
+        }
+        .star.selected {
+            color: #ffcc00;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="rating-box">
+    <h1>Rate Our Interface</h1>
+    <div class="stars" id="starRating">
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+    </div>
+    <button id="submitRating">Next</button>
+</div>
+
+<script>
+    const stars = document.querySelectorAll('.star');
+    let rating = 0;
+
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            rating = star.getAttribute('data-value');
+            stars.forEach(s => s.classList.remove('selected'));
+            for (let i = 0; i < rating; i++) {
+                stars[i].classList.add('selected');
+            }
+        });
+    });
+
+    document.getElementById('submitRating').addEventListener('click', () => {
+        if (rating > 0) {
+            localStorage.setItem('userRatingOp', rating);
+            window.location.href = 'TLX-op.html'; // Redirect to the next page
+        } else {
+            alert('Please select a rating before proceeding.');
+        }
+    });
+</script>
+
+</body>
+</html>

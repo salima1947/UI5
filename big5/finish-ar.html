@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Results</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #4a90e2, #d6e5ff);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #025ced;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>شكرا على المشاركة في تجربتنا 😊</h1>
+        <button id="download">حمّل النتائج</button>
+        <div id="resultsDisplay"></div>
+    </div>
+
+    <script>
+        var scale = [
+            "Mental Demand",
+            "Physical Demand",
+            "Temporal Demand",
+            "Performance",
+            "Effort",
+            "Frustration"
+        ];
+
+        document.getElementById('download').onclick = function() {
+            const quizResults = {
+                agr: JSON.parse(localStorage.getItem('quizResultsAgr')),
+                con: JSON.parse(localStorage.getItem('quizResultsCon')),
+                ext: JSON.parse(localStorage.getItem('quizResultsExt')),
+                op: JSON.parse(localStorage.getItem('quizResultsOp')),
+                ne: JSON.parse(localStorage.getItem('quizResultsNe'))
+            };
+
+            const ratings = {
+                agreeableness: localStorage.getItem('userRatingAg'),
+                conscientiousness: localStorage.getItem('userRatingCo'),
+                extraversion: localStorage.getItem('userRatingEx'),
+                openness: localStorage.getItem('userRatingOp'),
+                neuroticism: localStorage.getItem('userRatingNe')
+            };
+
+            // Ensure all required data is present
+            for (const key in quizResults) {
+                if (!quizResults[key]) {
+                    alert(`خطأ: لم يتم العثور على نتائج ${key}. يرجى إكمال الاستبيان.`);
+                    return;
+                }
+            }
+            for (const key in ratings) {
+                if (!ratings[key]) {
+                    alert(`خطأ: لم يتم العثور على تقييم ${key}. يرجى إكمال الاستبيان.`);
+                    return;
+                }
+            }
+
+            // Extract user details
+            const name = quizResults.agr?.name || 'N/A';
+            const age = quizResults.agr?.age || 'N/A';
+
+            // Timer
+            const startTime = localStorage.getItem('startTime');
+            const endTime = Date.now();
+            const totalTime = endTime - startTime; // Total time in milliseconds
+
+            // Create result text
+            let resultText = `Name: ${name}; Age: ${age}; Total Time Spent: ${totalTime} milliseconds;\n\nQuiz Results:\n`;
+            resultText += `Agreeableness: ${ratings.agreeableness}; `;
+            resultText += `Conscientiousness: ${ratings.conscientiousness}; `;
+            resultText += `Extraversion: ${ratings.extraversion}; `;
+            resultText += `Openness: ${ratings.openness}; `;
+            resultText += `Neuroticism: ${ratings.neuroticism}; \n\n`;
+
+            // Add quiz answers
+            for (const [trait, data] of Object.entries(quizResults)) {
+                if (data) {
+                    resultText += `${trait.toUpperCase()} Answers: ${data.answers.join("; ")};\n`;
+                    resultText += `Total time spent: ${data.timeSpent} milliseconds;\n\n`;
+                }
+            }
+
+            // Add NASA-TLX results
+            resultText += "NASA Task Load Index Results:\n\n";
+            for (const key of ['Ag', 'Co', 'Ex', 'Op', 'Ne']) {
+                resultText += `TLX ${key} Results:\n\n`;
+                resultText += "Scale; Rating; Tally; Weight\n";
+                const nasaResults = JSON.parse(localStorage.getItem(`nasaResults${key}`));
+                for (let i = 0; i < scale.length; i++) {
+                    resultText += `${scale[i]}; ${nasaResults.rating[i] || "N/A"}; ${nasaResults.tally[i] || "N/A"}; ${nasaResults.weight[i].toFixed(2) || "N/A"};\n`;
+                }
+                resultText += `\nOverall Score: ${nasaResults.overall || "N/A"};\n\n`;
+            }
+
+            // Create a text file and trigger download
+            const blob = new Blob([resultText], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "results.txt";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Clear localStorage (optional)
+            localStorage.clear();
+        };
+    </script>
+</body>
+</html>
